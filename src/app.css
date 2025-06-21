@@ -1,0 +1,23 @@
+/* Global CSS Variables */
+:root {
+  --background: #1e1e1e;
+  --sidebar-bg: #21252c;
+  --sidebar-border:#2c313a;
+  --sidebar-selected: #2c313a;
+  --sidebar-hover: #31363f;
+  --text: #fff;
+  --input-bg: #23272e;
+  --input-border: #2c313a;
+  --output-bg: #23272e;
+  --output-border: #2c313a;
+  --accent: #478778;
+  --accent-hover: #356459;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: var(--background);
+  color: var(--text);
+}
