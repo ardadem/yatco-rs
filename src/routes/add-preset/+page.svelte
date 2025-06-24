@@ -175,6 +175,10 @@
         flex: 1 1 auto;
         padding-right: 2rem;
         box-sizing: border-box;
+        background-color: var(--background) !important;
+        color: var(--text) !important;
+        border: 1px solid var(--accent);
+        appearance: none;
     }
     .add-selection-btn {
         background: var(--accent);
