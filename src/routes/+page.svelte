@@ -3,12 +3,15 @@
   import { goto } from "$app/navigation";
   import "../app.css";
   import { onMount, onDestroy } from "svelte";
+  import { highlightAuto } from "./highlight";
 
   let presets: string[] = [];
   let selectedPreset = "";
 
   let inputText = "";
   let outputText = "";
+  let highlightedOutput = "";
+  let detectedLanguage = "";
 
   let contextMenuVisible = false;
   let contextMenuX = 0;
@@ -95,6 +98,10 @@
     }
     hideContextMenu();
   }
+
+  // Highlight outputText whenever it changes
+  $: ({ value: highlightedOutput, language: detectedLanguage } =
+    highlightAuto(outputText));
 </script>
 
 <div class="layout">
@@ -154,12 +161,11 @@
         bind:value={inputText}
         placeholder="Enter text here..."
       ></textarea>
-      <textarea
-        class="output-area"
-        value={outputText}
-        readonly
-        placeholder="Output will appear here..."
-      ></textarea>
+      <div class="output-area">
+        <pre>
+          <code>{@html highlightedOutput}</code>
+        </pre>
+      </div>
     </div>
   </main>
 </div>
@@ -263,6 +269,34 @@
   .output-area {
     background: var(--output-bg);
     border-left: 1px solid var(--output-border);
+    width: 50%;
+    height: 100vh;
+    box-sizing: border-box;
+    padding: 1rem;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+  }
+  .output-area pre {
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    color: inherit;
+    font-family: inherit;
+    font-size: 1rem;
+    height: 100%;
+    overflow: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .output-area code {
+    display: block;
+    background: transparent;
+    color: inherit;
+    font-family: inherit;
+    font-size: 1rem;
+    white-space: pre-wrap;
+    word-break: break-word;
   }
   ::-webkit-scrollbar {
     width: 8px;
