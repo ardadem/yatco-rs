@@ -1,4 +1,4 @@
-# Makefile for TXTransform
+# Makefile for yatco-rs
 
 .PHONY: dev build
 

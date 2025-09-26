@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "txtransform",
+  "productName": "yatco-rs",
   "version": "0.1.0",
-  "identifier": "com.txtransform.app",
+  "identifier": "com.yatco_rs.app",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "TXTransform",
+  "title": "yatco-rs",
         "width": 1280,
         "height": 720
       }

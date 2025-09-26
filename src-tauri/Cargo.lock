@@ -3,21 +3,6 @@
 version = 4
 
 [[package]]
-name = "TXTransform"
-version = "0.1.0"
-dependencies = [
- "directories",
- "once_cell",
- "serde",
- "serde_json",
- "tauri",
- "tauri-build",
- "tauri-plugin-opener",
- "tauri-plugin-window-state",
- "toml",
-]
-
-[[package]]
 name = "addr2line"
 version = "0.24.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4962,6 +4947,21 @@ dependencies = [
  "libc",
  "once_cell",
  "pkg-config",
+]
+
+[[package]]
+name = "yatco-rs"
+version = "0.1.0"
+dependencies = [
+ "directories",
+ "once_cell",
+ "serde",
+ "serde_json",
+ "tauri",
+ "tauri-build",
+ "tauri-plugin-opener",
+ "tauri-plugin-window-state",
+ "toml",
 ]
 
 [[package]]

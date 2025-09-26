@@ -68,7 +68,7 @@ impl TomlConfig for Presets {
 
 /// Returns the config file path, creating the directory if needed, using XDG or platform conventions.
 fn get_config_path(config_name: &str) -> Result<PathBuf, io::Error> {
-    if let Some(proj_dirs) = ProjectDirs::from("com", "txtransform", "TXTransform") {
+    if let Some(proj_dirs) = ProjectDirs::from("com", "yatco-rs", "yatco-rs") {
         let config_dir = proj_dirs.config_dir();
         let _ = std::fs::create_dir_all(config_dir); // Ensure directory exists
         let config_path = config_dir.join(config_name);
