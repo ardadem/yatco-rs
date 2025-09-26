@@ -10,6 +10,7 @@
     const transformerOptions = [
         { key: "custom_py", label: "Custom (Python)" },
         { key: "pretty_json", label: "Pretty JSON" },
+        { key: "json_unescape", label: "JSON Unescape" },
     ];
     let selection = transformerOptions[0].key;
     // Stores absolute path to the python script
