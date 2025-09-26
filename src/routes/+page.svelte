@@ -21,6 +21,45 @@
   let contextMenuRef: HTMLDivElement | null = null;
   let outsideClickHandler: ((event: MouseEvent) => void) | null = null;
 
+  // Resizer state
+  let inputsRef: HTMLDivElement | null = null;
+  let leftPercent = 50; // default left pane width in percent
+  let rightPercent = 50;
+  let dragging = false;
+  const minPercent = 10;
+  const maxPercent = 90;
+
+  function startDrag(e: PointerEvent) {
+    e.preventDefault();
+    dragging = true;
+    // prevent text selection while dragging
+    document.body.style.userSelect = "none";
+    window.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("pointerup", stopDrag);
+  }
+
+  function onPointerMove(e: PointerEvent) {
+    if (!dragging || !inputsRef) return;
+    const rect = inputsRef.getBoundingClientRect();
+    let percent = ((e.clientX - rect.left) / rect.width) * 100;
+    if (percent < minPercent) percent = minPercent;
+    if (percent > maxPercent) percent = maxPercent;
+    leftPercent = percent;
+    rightPercent = 100 - leftPercent;
+  }
+
+  function stopDrag() {
+    dragging = false;
+    document.body.style.userSelect = "";
+    window.removeEventListener("pointermove", onPointerMove);
+    window.removeEventListener("pointerup", stopDrag);
+  }
+
+  function resetDivider() {
+    leftPercent = 50;
+    rightPercent = 50;
+  }
+
   onMount(async () => {
     const rawPresets = (await core.invoke("get_presets")) as [
       string,
@@ -155,16 +194,30 @@
     {/if}
   </aside>
   <main class="main-content">
-    <div class="inputs">
-      <textarea
-        class="input-area"
-        bind:value={inputText}
-        placeholder="Enter text here..."
-      ></textarea>
-      <div class="output-area">
-        <pre>
-          <code>{@html highlightedOutput}</code>
-        </pre>
+    <div class="inputs" bind:this={inputsRef}>
+      <div class="pane input-pane" style="width: {leftPercent}%">
+        <textarea
+          class="input-area"
+          bind:value={inputText}
+          placeholder="Enter text here..."
+        ></textarea>
+      </div>
+
+      <div
+        class="divider"
+        on:pointerdown={startDrag}
+        on:dblclick={resetDivider}
+        role="separator"
+        aria-orientation="vertical"
+        aria-label="Resize panes"
+      ></div>
+
+      <div class="pane output-pane" style="width: {rightPercent}%">
+        <div class="output-area">
+          <pre>
+            <code>{@html highlightedOutput}</code>
+          </pre>
+        </div>
       </div>
     </div>
   </main>
@@ -249,10 +302,15 @@
     width: 100%;
     height: 100%;
   }
-  .input-area,
-  .output-area {
-    width: 50%;
+  .pane {
+    display: flex;
+    flex-direction: column;
     height: 100vh;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+  .input-area {
+    height: 100%;
     font-size: 1rem;
     padding: 1rem;
     border: none;
@@ -262,20 +320,47 @@
     color: var(--text);
     box-sizing: border-box;
     outline: none;
+    width: 100%;
   }
   .input-area {
     border-right: 1px solid var(--input-border);
   }
-  .output-area {
+  .output-pane .output-area {
     background: var(--output-bg);
     border-left: 1px solid var(--output-border);
-    width: 50%;
-    height: 100vh;
+    height: 100%;
     box-sizing: border-box;
     padding: 1rem;
     overflow: auto;
     display: flex;
     flex-direction: column;
+  }
+
+  /* Divider between panes */
+  .divider {
+    width: 6px; /* thinner */
+    cursor: col-resize;
+    background: transparent;
+    transition: background 0.12s;
+    user-select: none;
+    touch-action: none; /* prevent touch scrolling while dragging */
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  /* subtle centered handle */
+  .divider::before {
+    content: "";
+    width: 2px;
+    height: 36px;
+    background: var(--sidebar-border);
+    opacity: 0.65;
+    border-radius: 2px;
+    box-shadow: 0 1px 0 rgba(255,255,255,0.02) inset;
+  }
+  .divider:hover {
+    background: rgba(0,0,0,0.03);
   }
   .output-area pre {
     margin: 0;

@@ -2,6 +2,8 @@
     import DragDropList from "../components/DragDropList.svelte";
     import { goto } from "$app/navigation";
     import { core } from "@tauri-apps/api";
+    import { open } from '@tauri-apps/plugin-dialog';
+    import { onMount } from "svelte";
 
     let name = "";
     let transformerList: string[] = [];
@@ -10,13 +12,54 @@
         { key: "pretty_json", label: "Pretty JSON" },
     ];
     let selection = transformerOptions[0].key;
-    let pythonScriptName = "";
+    // Stores absolute path to the python script
+    let scriptPath = "";
+
+    onMount(() => {
+        // Restore last selected script from localStorage if available
+        try {
+            const stored = localStorage.getItem("py_script");
+            if (stored) scriptPath = stored;
+        } catch (e) {
+            // ignore
+        }
+    });
+
+    async function selectPythonScript() {
+        try {
+            const res: any = await open({
+                multiple: false,
+                filters: [
+                    { name: "Python", extensions: ["py"] },
+                ],
+                title: "Select Python script",
+            });
+
+            let selectedPath: string | null = null;
+            if (Array.isArray(res)) {
+                if (res.length > 0 && typeof res[0] === "string") selectedPath = res[0];
+            } else if (res && typeof res === "string") {
+                selectedPath = res;
+            }
+
+            if (selectedPath) {
+                scriptPath = selectedPath;
+                try {
+                    localStorage.setItem("py_script", scriptPath);
+                } catch (e) {
+                    // ignore
+                }
+            }
+        } catch (err) {
+            console.error("Failed to select file", err);
+        }
+    }
 
     async function save() {
         if (name && transformerList.length > 0) {
             let extraArgs = undefined;
             if (selection === "custom_py") {
-                extraArgs = { py_script: pythonScriptName };
+                extraArgs = { py_script: scriptPath };
             }
             await core.invoke("add_preset", {
                 name: name,
@@ -63,12 +106,17 @@
     </label>
     {#if selection === "custom_py"}
         <label>
-            Python Script Name:
-            <input
-                type="text"
-                bind:value={pythonScriptName}
-                placeholder="e.g. my_script.py"
-            />
+            Python Script:
+            <div style="display:flex;gap:0.5rem;align-items:center;">
+                <input
+                    type="text"
+                    bind:value={scriptPath}
+                    placeholder="Select a python script file"
+                    readonly
+                    style="flex:1"
+                />
+                <button type="button" class="select-file-btn" on:click={selectPythonScript}>Select file</button>
+            </div>
         </label>
     {/if}
     <label>
@@ -203,5 +251,18 @@
     .add-selection-btn:hover {
         background: var(--accent-hover);
         color: var(--text);
+    }
+    .select-file-btn {
+        background: var(--input-bg);
+        color: var(--text);
+        border: 1px solid var(--input-border);
+        border-radius: 4px;
+        padding: 0.45rem 0.75rem;
+        cursor: pointer;
+        transition: background 0.15s, color 0.15s, border-color 0.15s;
+    }
+    .select-file-btn:hover {
+        background: var(--input-bg-hover, var(--input-bg));
+        border-color: var(--accent);
     }
 </style>
